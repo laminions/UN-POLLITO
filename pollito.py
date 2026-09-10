@@ -10,9 +10,9 @@ x_pollito = 250
 y_pollito = 350
 
 carros = [
-    [50, 140, "red", 3],
-    [350, 210, "blue", -3],
-    [150, 280, "orange", 2]
+    [50, 140, "red", 10],
+    [350, 210, "blue", -10],
+    [150, 280, "orange", 10]
 ]
 
 # ------------------
@@ -50,7 +50,7 @@ def mover_carros():
         if carro[0] > BASE:
             carro[0] = -70
 
-        if carro[0] < -70:
+        if carro[0] < -80:
             carro[0] = BASE
 
     dibujar()
@@ -61,7 +61,7 @@ def mover(event):
     global x_pollito, y_pollito
 
     if event.keysym == "Up":
-        y_pollito -= 10
+        y_pollito -= 5
 
     if event.keysym == "Down":
         y_pollito += 10
