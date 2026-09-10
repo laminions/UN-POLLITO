@@ -1,66 +1,124 @@
-import pygame
+from tkinter import *
 
-pygame.init()
+# ------------------
+# variables
+# ------------------
+BASE = 500
+ALTURA = 400
 
-pantalla = pygame.display.set_mode((600, 500))
-pygame.display.set_caption("Cruzar la avenida")
-
-amarillo = (255, 255, 0)
-gris = (80, 80, 80)
-rojo = (255, 0, 0)
-azul = (0, 100, 255)
-verde = (0, 200, 0)
-blanco = (255, 255, 255)
-
-x = 300
-y = 450
+x_pollito = 250
+y_pollito = 350
 
 carros = [
-    [50, 150],
-    [400, 250],
-    [150, 350]
+    [50, 140, "red", 3],
+    [350, 210, "blue", -3],
+    [150, 280, "orange", 2]
 ]
 
-jugando = True
+# ------------------
+# funciones
+# ------------------
 
-while jugando:
+def dibujar():
+    c.delete("all")
 
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            jugando = False
+    # pasto
+    c.create_rectangle(0, 0, BASE, ALTURA, fill="green")
 
-    teclas = pygame.key.get_pressed()
+    # avenida
+    c.create_rectangle(0, 80, BASE, 320, fill="gray")
 
-    if teclas[pygame.K_LEFT]:
-        x -= 5
-    if teclas[pygame.K_RIGHT]:
-        x += 5
-    if teclas[pygame.K_UP]:
-        y -= 5
-    if teclas[pygame.K_DOWN]:
-        y += 5
+    # meta
+    c.create_rectangle(0, 50, BASE, 80, fill="lime")
 
-    pantalla.fill(verde)
+    # pollito
+    c.create_oval(x_pollito-15, y_pollito-15,
+                  x_pollito+15, y_pollito+15,
+                  fill="yellow")
 
-    # Avenida
-    pygame.draw.rect(pantalla, gris, (0, 100, 600, 300))
-
-    # Meta
-    pygame.draw.rect(pantalla, verde, (0, 0, 600, 70))
-    texto = pygame.font.Font(None, 40).render("META", True, blanco)
-    pantalla.blit(texto, (260, 20))
-
-    # Carros
+    # carros
     for carro in carros:
-        pygame.draw.rect(pantalla, rojo, (carro[0], carro[1], 80, 40))
-        carro[0] += 3
+        c.create_rectangle(carro[0], carro[1],
+                           carro[0]+70, carro[1]+30,
+                           fill=carro[2])
 
-        if carro[0] > 600:
-            carro[0] = -80
 
-    # Jugador
-    pygame.draw.circle(pantalla, amarillo, (x, y), 15)
+def mover_carros():
+    for carro in carros:
+        carro[0] = carro[0] + carro[3]
 
-    pygame.display.update()
+        if carro[0] > BASE:
+            carro[0] = -70
 
-pygame.quit()
+        if carro[0] < -70:
+            carro[0] = BASE
+
+    dibujar()
+    ventana.after(50, mover_carros)
+
+
+def mover(event):
+    global x_pollito, y_pollito
+
+    if event.keysym == "Up":
+        y_pollito -= 10
+
+    if event.keysym == "Down":
+        y_pollito += 10
+
+    if event.keysym == "Left":
+        x_pollito -= 10
+
+    if event.keysym == "Right":
+        x_pollito += 10
+
+    # limites
+    if x_pollito < 15:
+        x_pollito = 15
+
+    if x_pollito > BASE - 15:
+        x_pollito = BASE - 15
+
+    if y_pollito < 15:
+        y_pollito = 15
+
+    if y_pollito > ALTURA - 15:
+        y_pollito = ALTURA - 15
+
+    # ganar
+    if y_pollito <= 80:
+        print("¡Ganaste!")
+        x_pollito = 250
+        y_pollito = 350
+
+    # perder
+    for carro in carros:
+        if (x_pollito > carro[0] and
+            x_pollito < carro[0] + 70 and
+            y_pollito > carro[1] and
+            y_pollito < carro[1] + 30):
+
+            print("¡Perdiste!")
+            x_pollito = 250
+            y_pollito = 350
+
+    dibujar()
+
+
+# ------------------
+# ventana
+# ------------------
+
+ventana = Tk()
+ventana.title("Pollito Crossing")
+ventana.resizable(False, False)
+
+c = Canvas(ventana, width=BASE, height=ALTURA)
+c.pack()
+
+ventana.bind("<KeyPress>", mover)
+
+dibujar()
+mover_carros()
+
+ventana.mainloop()
